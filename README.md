@@ -15,6 +15,7 @@
 git clone <repository-url>
 cd testovoe
 ```
+*процесс может занять время для загрузки composer install (проверить статус можно по команде docker logs tesotovoe-app-1 -f)
 
 2. **Запустите проект:**
 ```bash
