@@ -1,4 +1,5 @@
 FROM php:8.2-fpm
+
 # Установка системных зависимостей, PHP-расширений, Node.js и Composer
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git unzip curl ca-certificates gnupg libpng-dev libonig-dev libxml2-dev \
@@ -10,16 +11,20 @@ RUN apt-get update \
 
 WORKDIR /var/www/html
 
+# Копируем все файлы проекта
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader
+# Копируем конфигурацию PHP-FPM
+COPY docker/app/www.conf /usr/local/etc/php-fpm.d/www.conf
 
-RUN npm install
-
-RUN npm run build
-
+# Копируем и настраиваем entrypoint
 COPY docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Устанавливаем правильные разрешения
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["php-fpm"]
